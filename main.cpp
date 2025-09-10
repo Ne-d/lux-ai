@@ -22,25 +22,25 @@ int main()
     
     /** AI Code Goes Below! **/
 
+    // Initialize data
     Player &player = gameState.players[gameState.id];
     Player &opponent = gameState.players[(gameState.id + 1) % 2];
 
     GameMap &gameMap = gameState.map;
-
     vector<Cell *> resourceTiles = vector<Cell *>();
+
+    // Find all resource tiles
     for (int y = 0; y < gameMap.height; y++)
     {
       for (int x = 0; x < gameMap.width; x++)
       {
         Cell *cell = gameMap.getCell(x, y);
         if (cell->hasResource())
-        {
           resourceTiles.push_back(cell);
-        }
       }
     }
 
-    // we iterate over all our units and do something with them
+    // Iterate over all our units and do something with them
     for (int i = 0; i < player.units.size(); i++)
     {
       Unit unit = player.units[i];
@@ -48,7 +48,7 @@ int main()
       {
         if (unit.getCargoSpaceLeft() > 0)
         {
-          // if the unit is a worker and we have space in cargo, lets find the nearest resource tile and try to mine it
+          // If the unit is a worker and we have space in cargo, lets find the nearest resource tile and try to mine it
           Cell *closestResourceTile = nullptr;
           float closestDist = 9999999;
           for (auto it = resourceTiles.begin(); it != resourceTiles.end(); it++)
@@ -71,7 +71,7 @@ int main()
         }
         else
         {
-          // if unit is a worker and there is no cargo space left, and we have cities, lets return to them
+          // If unit is a worker and there is no cargo space left, and we have cities, lets return to them
           if (player.cities.size() > 0)
           {
             auto city_iter = player.cities.begin();
