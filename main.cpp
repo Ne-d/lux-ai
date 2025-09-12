@@ -1,11 +1,14 @@
 #include "lux/kit.hpp"
-//#include "lux/define.cpp"
 
 #include <vector>
 #include <set>
 
+#include "AgentManager.h"
+#include "search.h"
+
 using namespace std;
 using namespace lux;
+
 int main()
 {
   kit::Agent gameState = kit::Agent();
@@ -40,61 +43,75 @@ int main()
       }
     }
 
+    // Find all city tiles
+    std::vector<CityTile*> cityTiles = std::vector<CityTile*>();
+    for (int y = 0; y < gameMap.height; y++)
+    {
+      for (int x = 0; x < gameMap.width; x++)
+      {
+        Cell *cell = gameMap.getCell(x, y);
+        if (cell->citytile != nullptr)
+          cityTiles.push_back(cell->citytile);
+      }
+    }
+
     // Iterate over all our units and do something with them
     for (int i = 0; i < player.units.size(); i++)
     {
       Unit unit = player.units[i];
+
+      // Setup AgentManager
+      AgentManager::get()->addUnit(unit.id);
+
+      // If the unit is a worker
       if (unit.isWorker() && unit.canAct())
       {
+        // If the unit can collect resources
         if (unit.getCargoSpaceLeft() > 0)
         {
-          // If the unit is a worker and we have space in cargo, lets find the nearest resource tile and try to mine it
-          Cell *closestResourceTile = nullptr;
-          float closestDist = 9999999;
-          for (auto it = resourceTiles.begin(); it != resourceTiles.end(); it++)
-          {
-            auto cell = *it;
-            if (cell->resource.type == ResourceType::coal && !player.researchedCoal()) continue;
-            if (cell->resource.type == ResourceType::uranium && !player.researchedUranium()) continue;
-            float dist = cell->pos.distanceTo(unit.pos);
-            if (dist < closestDist)
-            {
-              closestDist = dist;
-              closestResourceTile = cell;
-            }
-          }
+          // Find the closest resource tile
+          Cell *closestResourceTile = findClosestResourceTile(unit, player, resourceTiles);
           if (closestResourceTile != nullptr)
           {
             auto dir = unit.pos.directionTo(closestResourceTile->pos);
             actions.push_back(unit.move(dir));
           }
         }
+        // If the unit has no space left
         else
         {
-          // If unit is a worker and there is no cargo space left, and we have cities, lets return to them
+          // And we have cities available
           if (player.cities.size() > 0)
           {
-            auto city_iter = player.cities.begin();
-            auto &city = city_iter->second;
-
-            float closestDist = 999999;
-            CityTile *closestCityTile = nullptr;
-            for (auto &citytile : city.citytiles)
-            {
-              float dist = citytile.pos.distanceTo(unit.pos);
-              if (dist < closestDist)
-              {
-                closestCityTile = &citytile;
-                closestDist = dist;
-              }
-            }
+            // Go to the nearest city
+            const CityTile *closestCityTile = findClosestCityTile(unit, player);
             if (closestCityTile != nullptr)
             {
+              if (closestCityTile->pos.distanceTo(unit.pos) <= 1 && unit.canBuild(gameMap) && unit.canAct())
+              {
+                actions.push_back(unit.move(DIRECTIONS::WEST));
+                actions.push_back(unit.buildCity());
+              }
+
               auto dir = unit.pos.directionTo(closestCityTile->pos);
               actions.push_back(unit.move(dir));
             }
           }
         }
+      }
+    }
+
+    // Iterate over all our cities
+    for (std::pair<const string, City>& pair : player.cities)
+    {
+      City& city = pair.second;
+
+      // Iterate over each CityTile of the city
+      for (CityTile& cityTile : city.citytiles)
+      {
+        // If we have enough fuel to survive a full night, do some research.
+        if (cityTile.canAct() && city.fuel > city.getLightUpkeep() * 10) // TODO: Ugly magic number
+          actions.push_back(cityTile.research());
       }
     }
 
