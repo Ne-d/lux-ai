@@ -3,17 +3,17 @@
 #include "lux/game_objects.hpp"
 #include "lux/map.hpp"
 
-using namespace lux;
-
-Cell* findClosestResourceTile(const Unit& unit, Player& player, std::vector<Cell*> resourceTiles)
+// Adapted from the Lux C++ kit.
+lux::Cell* findClosestResourceTile(const lux::Unit& unit, lux::Player& player, std::vector<lux::Cell*> resourceTiles)
 {
-	Cell *closestResourceTile = nullptr;
+	lux::Cell*closestResourceTile = nullptr;
 	float closestDist = 9999999;
+
 	for (auto it = resourceTiles.begin(); it != resourceTiles.end(); it++)
 	{
 		auto* cell = *it;
-		if (cell->resource.type == ResourceType::coal && !player.researchedCoal()) continue;
-		if (cell->resource.type == ResourceType::uranium && !player.researchedUranium()) continue;
+		if (cell->resource.type == lux::ResourceType::coal && !player.researchedCoal()) continue;
+		if (cell->resource.type == lux::ResourceType::uranium && !player.researchedUranium()) continue;
 		float const dist = cell->pos.distanceTo(unit.pos);
 		if (dist < closestDist)
 		{
@@ -25,14 +25,15 @@ Cell* findClosestResourceTile(const Unit& unit, Player& player, std::vector<Cell
 	return closestResourceTile;
 }
 
-
+// Adapted from the Lux c++ kit
 lux::CityTile* findClosestCityTile(const lux::Unit& unit, lux::Player& player)
 {
 	auto city_iter = player.cities.begin();
 	auto &city = city_iter->second;
 
 	float closestDist = 999999;
-	CityTile *closestCityTile = nullptr;
+	lux::CityTile*closestCityTile = nullptr;
+
 	for (auto &citytile : city.citytiles)
 	{
 		float dist = citytile.pos.distanceTo(unit.pos);
@@ -47,18 +48,18 @@ lux::CityTile* findClosestCityTile(const lux::Unit& unit, lux::Player& player)
 }
 
 
-const Cell* findTileToBuild(const lux::City& city, const GameMap& gameMap)
+const lux::Cell* findTileToBuild(const lux::City& city, const lux::GameMap& gameMap)
 {
-	constexpr DIRECTIONS directions[] = {EAST, SOUTH, WEST, NORTH};
+	constexpr lux::DIRECTIONS directions[] = { lux::EAST, lux::SOUTH, lux::WEST, lux::NORTH };
 
 	// Search in every tile of the given city
-	for (const CityTile& cityTile : city.citytiles)
+	for (const lux::CityTile& cityTile : city.citytiles)
 	{
 		// Look at every adjacent tile
 		const int start = rand() % 4;
 		for (int i = start; i < start + 4; i++)
 		{
-			const Cell* cell = gameMap.getCellByPos(cityTile.pos.translate(directions[i % 4], 1));
+			const lux::Cell* cell = gameMap.getCellByPos(cityTile.pos.translate(directions[i % 4], 1));
 			if (isCellEmpty(cell))
 				return cell;
 		}
@@ -76,21 +77,22 @@ bool isCellEmpty(const lux::Cell* cell)
 
 lux::DIRECTIONS rotateDirection(const lux::DIRECTIONS direction, const unsigned int rotation)
 {
-	if (direction == CENTER)
-		return CENTER;
+	if (direction == lux::CENTER)
+		return lux::CENTER;
 
-	constexpr DIRECTIONS directions[] = {EAST, SOUTH, WEST, NORTH};
+	// Forgive me for my sins.
+	constexpr lux::DIRECTIONS directions[] = { lux::EAST, lux::SOUTH, lux::WEST, lux::NORTH };
 	int currentIndex = 0;
 
 	switch (direction)
 	{
-	case EAST:
+	case lux::EAST:
 		currentIndex = 0; break;
-	case SOUTH:
+	case lux::SOUTH:
 		currentIndex = 1; break;
-	case WEST:
+	case lux::WEST:
 		currentIndex = 2; break;
-	case NORTH:
+	case lux::NORTH:
 		currentIndex = 3; break;
 	}
 

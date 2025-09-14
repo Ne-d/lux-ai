@@ -12,14 +12,17 @@ namespace lux
 
 void WorkerBehaviour::collectFuel(const lux::Unit& unit, lux::Player player, const std::vector<lux::Cell*>& resourceTiles)
 {
+	// Go to the closest resource tile
 	const lux::Cell *closestResourceTile = findClosestResourceTile(unit, player, resourceTiles);
-
 	if (closestResourceTile != nullptr)
 	{
 		const auto dir = unit.pos.directionTo(closestResourceTile->pos);
-		AgentManager::addAction(unit.move(dir));
+		AgentManager::queueAction(unit.move(dir));
 	}
+	else
+		AgentManager::setUnitObjectiveFinished(unit.id);
 
+	// Once cargo is filled, get a new objective.
 	if (unit.getCargoSpaceLeft() < 1)
 		AgentManager::setUnitObjectiveFinished(unit.id);
 }
@@ -32,43 +35,41 @@ void WorkerBehaviour::deposit(const lux::Unit& unit, lux::Player player)
 	if (closestCityTile != nullptr)
 	{
 		const auto dir = unit.pos.directionTo(closestCityTile->pos);
-		AgentManager::addAction(unit.move(dir));
+		AgentManager::queueAction(unit.move(dir));
 	}
 
-	if (unit.cargo.wood == 0 && unit.cargo.coal == 0 && unit.cargo.uranium == 0)
+	// Once cargo is empty, get a new objective
+	if (unit.getCargoSpaceLeft() > 99)
 		AgentManager::setUnitObjectiveFinished(unit.id);
-}
-
-
-void WorkerBehaviour::collectWood()
-{
 }
 
 
 void WorkerBehaviour::buildCity(const lux::Unit& unit, lux::Player player, const lux::GameMap& gameMap)
 {
-	if (unit.cargo.wood < 100 && unit.cargo.coal < 100 && unit.cargo.uranium < 100)
+	// If we don't have enough resources to build a city, get a new objective.
+	if (unit.getCargoSpaceLeft() > 0)
 		AgentManager::setUnitObjectiveFinished(unit.id);
 
+	// Find the cell to build on
 	const lux::CityTile *closestCityTile = findClosestCityTile(unit, player);
 	const lux::City closestCity = player.cities.at(closestCityTile->cityid);
+	const lux::Cell* cellToBuild = findTileToBuild(closestCity, gameMap);
+	AgentManager::queueAction(lux::Annotate::x(cellToBuild->pos.x, cellToBuild->pos.y));
 
-	const lux::Cell* tileToBuild = findTileToBuild(closestCity, gameMap);
-	AgentManager::addAction(lux::Annotate::x(tileToBuild->pos.x, tileToBuild->pos.y));
-
-	if (tileToBuild->pos.distanceTo(unit.pos) > 0)
+	// If we are not on the cell yet, move to it, avoiding existing city tiles.
+	if (cellToBuild->pos.distanceTo(unit.pos) > 0)
 	{
-		lux::DIRECTIONS direction = unit.pos.directionTo(tileToBuild->pos);
+		lux::DIRECTIONS direction = unit.pos.directionTo(cellToBuild->pos);
 		const lux::Position nextPosition = unit.pos.translate(direction, 1);
 
 		// If we are about to move to a city
 		if (gameMap.getCellByPos(nextPosition)->citytile != nullptr)
 			direction = rotateDirection(direction, (rand() % 2) == 0 ? 1 : 3);
 
-		AgentManager::addAction(unit.move(direction));
+		AgentManager::queueAction(unit.move(direction));
 	}
 	else
 	{
-		AgentManager::addAction(unit.buildCity());
+		AgentManager::queueAction(unit.buildCity());
 	}
 }

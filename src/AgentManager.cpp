@@ -44,7 +44,7 @@ void AgentManager::setUnitObjectiveFinished(const std::string& unitId)
 }
 
 
-void AgentManager::addAction(const std::string& action)
+void AgentManager::queueAction(const std::string& action)
 {
 	actions->push_back(action);
 }

@@ -5,7 +5,6 @@
 
 #include "AgentManager.h"
 #include "Objective.h"
-#include "search.h"
 #include "WorkerBehaviour.h"
 
 using namespace std;
@@ -16,8 +15,6 @@ int main()
   kit::Agent gameState = kit::Agent();
   // initialize
   gameState.initialize();
-
-  AgentManager g_AgentManager;
 
   while (true)
   {
@@ -68,30 +65,31 @@ int main()
       const Unit unit = player.units[i];
 
       // Setup AgentManager
-      g_AgentManager.clearUnits();
-      g_AgentManager.addUnit(unit.id);
+      AgentManager::clearUnits(); // To avoid accessing dead units (invalid references)
+      AgentManager::addUnit(unit.id); // We rebuild the list every turn.
 
       // Compute unit objective, if that unit isn't busy (has no current objective)
-      if (unit.isWorker() && !g_AgentManager.getUnitData(unit.id)->busy)
+      if (unit.isWorker() && !AgentManager::getUnitData(unit.id)->busy)
       {
         // If the unit can collect resources
         if (unit.getCargoSpaceLeft() > 0)
-          g_AgentManager.setUnitObjective(unit.id, UnitObjective::COLLECT_FUEL);
+          AgentManager::setUnitObjective(unit.id, UnitObjective::COLLECT_FUEL);
 
         // If the unit has no space left
         else
         {
+          // Choose randomly between building a new city and depositing resources for fuel
           if (rand() % 2 == 0)
-            g_AgentManager.setUnitObjective(unit.id, UnitObjective::BUILD_CITY);
+            AgentManager::setUnitObjective(unit.id, UnitObjective::BUILD_CITY);
           else
-            g_AgentManager.setUnitObjective(unit.id, UnitObjective::DEPOSIT);
+            AgentManager::setUnitObjective(unit.id, UnitObjective::DEPOSIT);
         }
       }
 
       // Execute worker behaviour based on objective
       if (unit.isWorker() && unit.canAct())
       {
-        switch (g_AgentManager.getUnitData(unit.id)->objective)
+        switch (AgentManager::getUnitData(unit.id)->objective)
         {
         case UnitObjective::COLLECT_FUEL:
           WorkerBehaviour::collectFuel(unit, player, resourceTiles);
@@ -116,6 +114,7 @@ int main()
       // Iterate over each CityTile of the city
       for (CityTile& cityTile : city.citytiles)
       {
+        // If we can have a new unit, build one
         if (player.units.size() < player.cityTileCount)
           actions.push_back(cityTile.buildWorker());
         else
@@ -124,9 +123,6 @@ int main()
             actions.push_back(cityTile.research());
       }
     }
-
-    // you can add debug annotations using the methods of the Annotate class.
-    // actions.push_back(Annotate::circle(0, 0));
 
     /** AI Code Goes Above! **/
 
