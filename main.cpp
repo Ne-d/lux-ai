@@ -15,6 +15,8 @@ int main()
   // initialize
   gameState.initialize();
 
+  AgentManager g_AgentManager;
+
   while (true)
   {
     /** Do not edit! **/
@@ -61,7 +63,7 @@ int main()
       Unit unit = player.units[i];
 
       // Setup AgentManager
-      AgentManager::get()->addUnit(unit.id);
+      g_AgentManager.addUnit(unit.id);
 
       // If the unit is a worker
       if (unit.isWorker() && unit.canAct())

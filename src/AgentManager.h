@@ -2,6 +2,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 
 enum class UnitObjective : uint8_t;
 
@@ -18,13 +19,11 @@ struct UnitData
 class AgentManager
 {
 public:
-	AgentManager() = delete;
-	static AgentManager* get();
+	AgentManager() = default;
 
 	UnitData* getUnitData(const std::string& id);
-	void addUnit(std::string& id);
+	void addUnit(const std::string& id);
 
 private:
-	static AgentManager* instance;
 	std::map<std::string, UnitData> units;
 };
