@@ -78,18 +78,27 @@ int main()
         if (unit.getCargoSpaceLeft() > 0)
         {
           g_AgentManager.getUnitData(unit.id)->objective = UnitObjective::COLLECT_FUEL;
-
           WorkerBehaviour::collectFuel(unit, player, resourceTiles);
         }
+
         // If the unit has no space left
         else
         {
           // And we have cities available
           if (player.cities.size() > 0)
           {
-            g_AgentManager.getUnitData(unit.id)->objective = UnitObjective::DEPOSIT;
-
-            WorkerBehaviour::deposit(unit, player);
+            // 50% chance to deposit fuel in existing city
+            /*if (rand() % 2 == 0)
+            {
+              g_AgentManager.getUnitData(unit.id)->objective = UnitObjective::DEPOSIT;
+              WorkerBehaviour::deposit(unit, player);
+            }
+            // 50% chance to build new city tile
+            else*/
+            {
+              g_AgentManager.getUnitData(unit.id)->objective = UnitObjective::BUILD_CITY;
+              WorkerBehaviour::buildCity(unit, player, gameMap);
+            }
           }
         }
       }

@@ -45,7 +45,7 @@ void WorkerBehaviour::buildCity(const lux::Unit& unit, lux::Player player, const
 
 	const lux::Cell* tileToBuild = findTileToBuild(closestCity, gameMap);
 
-	if (tileToBuild->pos.distanceTo(unit.pos) <= 1 && unit.canBuild(gameMap) && unit.canAct())
+	if (tileToBuild->pos.distanceTo(unit.pos) < 1 && unit.canBuild(gameMap) && unit.canAct())
 	{
 		AgentManager::addAction(unit.buildCity());
 	}

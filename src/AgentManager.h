@@ -16,8 +16,14 @@ namespace lux
 
 struct UnitData
 {
+	// Current objective type
 	UnitObjective objective;
+
+	// Current target position
 	lux::Position target;
+
+	// If true, don't accept any new objective
+	bool busy;
 };
 
 class AgentManager
