@@ -24,6 +24,9 @@ public:
 	UnitData* getUnitData(const std::string& id);
 	void addUnit(const std::string& id);
 
+	static std::vector<std::string>* actions;
+	static void addAction(const std::string& action);
+
 private:
 	std::map<std::string, UnitData> units;
 };

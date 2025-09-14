@@ -141,6 +141,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\AgentManager.cpp" />
     <ClCompile Include="src\search.cpp" />
+    <ClCompile Include="src\WorkerBehaviour.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="lux\annotate.hpp" />
@@ -155,6 +156,7 @@
     <ClInclude Include="src\AgentManager.h" />
     <ClInclude Include="src\Objective.h" />
     <ClInclude Include="src\search.h" />
+    <ClInclude Include="src\WorkerBehaviour.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="cpp.hint" />

@@ -5,6 +5,7 @@ enum class UnitObjective : uint8_t
 {
 	COLLECT_FUEL,
 	COLLECT_WOOD,
+	DEPOSIT,
 	BUILD_CITY,
 };
 

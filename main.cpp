@@ -4,7 +4,9 @@
 #include <set>
 
 #include "AgentManager.h"
+#include "Objective.h"
 #include "search.h"
+#include "WorkerBehaviour.h"
 
 using namespace std;
 using namespace lux;
@@ -33,6 +35,9 @@ int main()
 
     GameMap &gameMap = gameState.map;
     vector<Cell *> resourceTiles = vector<Cell *>();
+
+    // Setup Action vector pointer in AgentManager
+    AgentManager::actions = &actions;
 
     // Find all resource tiles
     for (int y = 0; y < gameMap.height; y++)
@@ -65,19 +70,16 @@ int main()
       // Setup AgentManager
       g_AgentManager.addUnit(unit.id);
 
+      // Compute unit objective
       // If the unit is a worker
       if (unit.isWorker() && unit.canAct())
       {
         // If the unit can collect resources
         if (unit.getCargoSpaceLeft() > 0)
         {
-          // Find the closest resource tile
-          Cell *closestResourceTile = findClosestResourceTile(unit, player, resourceTiles);
-          if (closestResourceTile != nullptr)
-          {
-            auto dir = unit.pos.directionTo(closestResourceTile->pos);
-            actions.push_back(unit.move(dir));
-          }
+          g_AgentManager.getUnitData(unit.id)->objective = UnitObjective::COLLECT_FUEL;
+
+          WorkerBehaviour::collectFuel(unit, player, resourceTiles);
         }
         // If the unit has no space left
         else
@@ -85,19 +87,9 @@ int main()
           // And we have cities available
           if (player.cities.size() > 0)
           {
-            // Go to the nearest city
-            const CityTile *closestCityTile = findClosestCityTile(unit, player);
-            if (closestCityTile != nullptr)
-            {
-              if (closestCityTile->pos.distanceTo(unit.pos) <= 1 && unit.canBuild(gameMap) && unit.canAct())
-              {
-                actions.push_back(unit.move(DIRECTIONS::WEST));
-                actions.push_back(unit.buildCity());
-              }
+            g_AgentManager.getUnitData(unit.id)->objective = UnitObjective::DEPOSIT;
 
-              auto dir = unit.pos.directionTo(closestCityTile->pos);
-              actions.push_back(unit.move(dir));
-            }
+            WorkerBehaviour::deposit(unit, player);
           }
         }
       }
