@@ -116,9 +116,12 @@ int main()
       // Iterate over each CityTile of the city
       for (CityTile& cityTile : city.citytiles)
       {
-        // If we have enough fuel to survive a full night, do some research.
-        if (cityTile.canAct() && city.fuel > city.getLightUpkeep() * 10) // TODO: Ugly magic number
-          actions.push_back(cityTile.research());
+        if (player.units.size() < player.cityTileCount)
+          actions.push_back(cityTile.buildWorker());
+        else
+          // If we have enough fuel to survive a full night, do some research.
+          if (cityTile.canAct() && city.fuel > city.getLightUpkeep() * 10) // TODO: Ugly magic number
+            actions.push_back(cityTile.research());
       }
     }
 

@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "Objective.h"
 #include "lux/position.hpp"
 
 
@@ -17,13 +18,13 @@ namespace lux
 struct UnitData
 {
 	// Current objective type
-	UnitObjective objective;
+	UnitObjective objective = UnitObjective::COLLECT_FUEL;
 
 	// Current target position
 	lux::Position target;
 
 	// If true, don't accept any new objective
-	bool busy;
+	bool busy = false;
 };
 
 class AgentManager

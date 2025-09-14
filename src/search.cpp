@@ -55,9 +55,10 @@ const Cell* findTileToBuild(const lux::City& city, const GameMap& gameMap)
 	for (const CityTile& cityTile : city.citytiles)
 	{
 		// Look at every adjacent tile
-		for (const DIRECTIONS direction : directions)
+		const int start = rand() % 4;
+		for (int i = start; i < start + 4; i++)
 		{
-			const Cell* cell = gameMap.getCellByPos(cityTile.pos.translate(direction, 1));
+			const Cell* cell = gameMap.getCellByPos(cityTile.pos.translate(directions[i % 4], 1));
 			if (isCellEmpty(cell))
 				return cell;
 		}
