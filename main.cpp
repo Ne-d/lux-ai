@@ -65,7 +65,7 @@ int main()
     // Iterate over all our units and do something with them
     for (int i = 0; i < player.units.size(); i++)
     {
-      Unit unit = player.units[i];
+      const Unit unit = player.units[i];
 
       // Setup AgentManager
       g_AgentManager.addUnit(unit.id);

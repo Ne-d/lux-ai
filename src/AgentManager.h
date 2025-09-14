@@ -4,6 +4,9 @@
 #include <string>
 #include <vector>
 
+#include "lux/position.hpp"
+
+
 enum class UnitObjective : uint8_t;
 
 namespace lux
@@ -14,6 +17,7 @@ namespace lux
 struct UnitData
 {
 	UnitObjective objective;
+	lux::Position target;
 };
 
 class AgentManager

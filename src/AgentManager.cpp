@@ -1,7 +1,5 @@
 ﻿#include "AgentManager.h"
 
-#include <iostream>
-
 std::vector<std::string>* AgentManager::actions;
 
 UnitData* AgentManager::getUnitData(const std::string& id)

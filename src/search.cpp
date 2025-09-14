@@ -45,3 +45,29 @@ lux::CityTile* findClosestCityTile(const lux::Unit& unit, lux::Player& player)
 
 	return closestCityTile;
 }
+
+
+const Cell* findTileToBuild(const lux::City& city, const GameMap& gameMap)
+{
+	constexpr DIRECTIONS directions[] = {EAST, SOUTH, WEST, NORTH};
+
+	// Search in every tile of the given city
+	for (const CityTile& cityTile : city.citytiles)
+	{
+		// Look at every adjacent tile
+		for (const DIRECTIONS direction : directions)
+		{
+			const Cell* cell = gameMap.getCellByPos(cityTile.pos.translate(direction, 1));
+			if (isCellEmpty(cell))
+				return cell;
+		}
+	}
+
+	return nullptr;
+}
+
+
+bool isCellEmpty(const lux::Cell* cell)
+{
+	return cell->citytile == nullptr && !cell->hasResource();
+}
