@@ -30,13 +30,17 @@ class AgentManager
 {
 public:
 	AgentManager() = default;
+	static void addUnit(const std::string& id);
+	static void clearUnits();
+	static void setActionVectorPointer(std::vector<std::string>* actionVector);
 
-	UnitData* getUnitData(const std::string& id);
-	void addUnit(const std::string& id);
+	static UnitData* getUnitData(const std::string& id);
+	static void setUnitObjective(std::string unitId, UnitObjective objective);
+	static void setUnitObjectiveFinished(const std::string& unitId);
 
-	static std::vector<std::string>* actions;
 	static void addAction(const std::string& action);
 
 private:
-	std::map<std::string, UnitData> units;
+	static std::map<std::string, UnitData> units;
+	static std::vector<std::string>* actions;
 };

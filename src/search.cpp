@@ -71,3 +71,27 @@ bool isCellEmpty(const lux::Cell* cell)
 {
 	return cell->citytile == nullptr && !cell->hasResource();
 }
+
+
+lux::DIRECTIONS rotateDirection(const lux::DIRECTIONS direction, const unsigned int rotation)
+{
+	if (direction == CENTER)
+		return CENTER;
+
+	constexpr DIRECTIONS directions[] = {EAST, SOUTH, WEST, NORTH};
+	int currentIndex = 0;
+
+	switch (direction)
+	{
+	case EAST:
+		currentIndex = 0; break;
+	case SOUTH:
+		currentIndex = 1; break;
+	case WEST:
+		currentIndex = 2; break;
+	case NORTH:
+		currentIndex = 3; break;
+	}
+
+	return directions[(currentIndex + rotation) % 4];
+}

@@ -37,7 +37,7 @@ int main()
     vector<Cell *> resourceTiles = vector<Cell *>();
 
     // Setup Action vector pointer in AgentManager
-    AgentManager::actions = &actions;
+    AgentManager::setActionVectorPointer(&actions);
 
     // Find all resource tiles
     for (int y = 0; y < gameMap.height; y++)
@@ -68,38 +68,42 @@ int main()
       const Unit unit = player.units[i];
 
       // Setup AgentManager
+      g_AgentManager.clearUnits();
       g_AgentManager.addUnit(unit.id);
 
-      // Compute unit objective
-      // If the unit is a worker
-      if (unit.isWorker() && unit.canAct())
+      // Compute unit objective, if that unit isn't busy (has no current objective)
+      if (unit.isWorker() && !g_AgentManager.getUnitData(unit.id)->busy)
       {
         // If the unit can collect resources
         if (unit.getCargoSpaceLeft() > 0)
-        {
-          g_AgentManager.getUnitData(unit.id)->objective = UnitObjective::COLLECT_FUEL;
-          WorkerBehaviour::collectFuel(unit, player, resourceTiles);
-        }
+          g_AgentManager.setUnitObjective(unit.id, UnitObjective::COLLECT_FUEL);
 
         // If the unit has no space left
         else
         {
-          // And we have cities available
-          if (player.cities.size() > 0)
-          {
-            // 50% chance to deposit fuel in existing city
-            /*if (rand() % 2 == 0)
-            {
-              g_AgentManager.getUnitData(unit.id)->objective = UnitObjective::DEPOSIT;
-              WorkerBehaviour::deposit(unit, player);
-            }
-            // 50% chance to build new city tile
-            else*/
-            {
-              g_AgentManager.getUnitData(unit.id)->objective = UnitObjective::BUILD_CITY;
-              WorkerBehaviour::buildCity(unit, player, gameMap);
-            }
-          }
+          if (rand() % 2 == 0)
+            g_AgentManager.setUnitObjective(unit.id, UnitObjective::BUILD_CITY);
+          else
+            g_AgentManager.setUnitObjective(unit.id, UnitObjective::DEPOSIT);
+        }
+      }
+
+      // Execute worker behaviour based on objective
+      if (unit.isWorker() && unit.canAct())
+      {
+        switch (g_AgentManager.getUnitData(unit.id)->objective)
+        {
+        case UnitObjective::COLLECT_FUEL:
+          WorkerBehaviour::collectFuel(unit, player, resourceTiles);
+          break;
+
+        case UnitObjective::DEPOSIT:
+          WorkerBehaviour::deposit(unit, player);
+          break;
+
+        case UnitObjective::BUILD_CITY:
+          WorkerBehaviour::buildCity(unit, player, gameMap);
+          break;
         }
       }
     }
